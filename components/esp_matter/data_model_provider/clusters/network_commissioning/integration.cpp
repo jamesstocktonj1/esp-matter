@@ -51,9 +51,10 @@ constexpr size_t kEthernetNetworkCommissioningClusterCount = 0;
 constexpr size_t kNetworkCommissioningClusterCount = kThreadNetworkCommissioningClusterCount +
                                                      kWifiNetworkCommissioningClusterCount + kEthernetNetworkCommissioningClusterCount;
 
-static_assert(kNetworkCommissioningClusterCount > 0, "NetworkCommissioningCluster count must be more than 0");
-
-LazyRegisteredServerCluster<NetworkCommissioningCluster> gServers[kNetworkCommissioningClusterCount];
+// The count may be zero when the application owns the network interface (for example Ethernet managed outside of
+// connectedhomeip). In that case no cluster is ever created: endpointIdIsValid() rejects every endpoint. The array is
+// kept at a minimum size of one to keep it well-formed.
+LazyRegisteredServerCluster<NetworkCommissioningCluster> gServers[kNetworkCommissioningClusterCount > 0 ? kNetworkCommissioningClusterCount : 1];
 
 class ESPMatterGeneralCommissioningBreadcrumbTracker : public BreadCrumbTracker {
 public:
